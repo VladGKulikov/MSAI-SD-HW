@@ -32,10 +32,9 @@ class User:
 
 
 class Message:
-    def __init__(self, user: User, chat, text: str):
+    def __init__(self, user: User, chat):
         self.__user = user
         self.__chat = chat
-        self.__text = text
 
     @property
     def user(self):
@@ -52,6 +51,26 @@ class Message:
     @chat.setter
     def chat(self, chat):
         self.__chat = chat
+
+
+class VideoMessage(Message):
+    def __init__(self, video, chat, user):
+        super().__init__(user, chat)
+        self.__video = video
+
+    @property
+    def video(self):
+        return self.__video
+
+    @video.setter
+    def video(self, video):
+        self.__video = video
+
+
+class TextMessage(Message):
+    def __init__(self, text, chat, user):
+        super().__init__(user, chat)
+        self.__text = text
 
     @property
     def text(self):
@@ -112,14 +131,16 @@ class Messenger:
             user.chats.append(self.chats[chat_name])
             print(f'Ok. User {user.login} added in {chat_name}')
 
-    def add_message(self, message_text: str, chat_name: str, user: User):
+    def add_message(self, messange: Message):
+        chat_name = messange.chat
+        user = messange.user
         if chat_name in self.chats:
             if user in self.chats[chat_name].users:
-                new_message = Message(user, chat_name, message_text)
+                new_message = Message(user, chat_name)
                 self.messages.append(new_message)
                 self.chats[chat_name].messages.append(new_message)
                 user.messages.append(new_message)
-                print(f'Ok. Message {message_text} added to chat {chat_name}')
+                print(f'Ok. Message added to chat {chat_name}')
             else:
                 print(f"ERROR - User {user.login} not in chat {chat_name}")
         else:
@@ -128,8 +149,9 @@ class Messenger:
     def find_word_in_messages(self, word: str):
         counter = 0
         for mess in self.messages:
-            if word in mess.text:
-                counter += 1
+            if mess is Message:
+                if word in mess.text:
+                    counter += 1
         print(f'Word: {word} is found in messenger {self.name} - {counter} times')
 
     def shared_chats(self, *args):
@@ -199,10 +221,10 @@ if __name__ == '__main__':
     wapp.add_user_to_chat(user2, 'chat_MIPT_SD')
     wapp.add_user_to_chat(user2, 'chat_MIPT_ML')
 
-    wapp.add_message('Yes', 'chat_MIPT_SD', user1)
-    wapp.add_message('Yes', 'chat_MIPT_SD', user1)
-    wapp.add_message('No', 'chat_MIPT_MO', user2)
-    wapp.add_message('Yes', 'chat_MIPT_SD', user2)
+    wapp.add_message(TextMessage('Yes', 'chat_MIPT_SD', user1))
+    wapp.add_message(TextMessage('Yes', 'chat_MIPT_SD', user1))
+    wapp.add_message(TextMessage('No', 'chat_MIPT_MO', user2))
+    wapp.add_message(TextMessage('Yes', 'chat_MIPT_SD', user2))
 
     wapp.find_word_in_messages('Yes')
     wapp.shared_chats(user1, user2)
